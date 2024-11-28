@@ -1,0 +1,39 @@
+from telegram.ext import Updater, CommandHandler
+import yt_dlp
+
+# Gaan Bajano Function
+def play(update, context):
+    query = ' '.join(context.args)  # User er song name/link
+    if not query:
+        update.message.reply_text("Gan er naam ba link dao!")
+        return
+
+    ydl_opts = {
+        'format': 'bestaudio',
+        'quiet': True,
+        'default_search': 'ytsearch',  # YouTube Search
+    }
+
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(query, download=False)
+            title = info.get('title', 'Unknown Title')
+            url = info['url']  # Stream URL
+
+            update.message.reply_text(f"Playing: {title}\n{url}")
+
+    except Exception as e:
+        update.message.reply_text(f"Error: {e}")
+
+# Main Function
+def main():
+    updater = Updater("7208476741:AAFYQ8P50zfoe7qEiJS8fsEEZkarZs_Z4mc", use_context=True)  # Replace with your token
+    dp = updater.dispatcher
+
+    dp.add_handler(CommandHandler("play", play))
+
+    updater.start_polling()
+    updater.idle()
+
+if __name__ == "__main__":
+    main()
